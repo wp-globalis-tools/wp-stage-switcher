@@ -49,11 +49,23 @@ class StageSwitcher {
 
     $stages = unserialize(ENVIRONMENTS);
     $current_stage = WP_ENV;
+    $current_stage_url = parse_url($stages[WP_ENV]);
+    $current_stage_path = isset($current_stage_url['path']) ? $current_stage_url['path'] : '';
+
+    $admin_bar->add_menu([
+      'id'     => 'environment',
+      'parent' => 'top-secondary',
+      'title'  => ucwords($current_stage),
+      'href'   => '#'
+    ]);
 
     foreach($stages as $stage => $url) {
       if ($stage === $current_stage) {
         continue;
       }
+
+      $stage_url = parse_url($url);
+      $stage_path = isset($stage_url['path']) ? $stage_url['path'] : '';
 
       if (is_multisite() && defined('SUBDOMAIN_INSTALL') && SUBDOMAIN_INSTALL && !is_main_site()) {
         $url = $this->multisite_url($url) . $_SERVER['REQUEST_URI'];
@@ -61,12 +73,7 @@ class StageSwitcher {
         $url .= $_SERVER['REQUEST_URI'];
       }
 
-      $admin_bar->add_menu([
-        'id'     => 'environment',
-        'parent' => 'top-secondary',
-        'title'  => ucwords($current_stage),
-        'href'   => '#'
-      ]);
+      $url = str_replace($current_stage_path, $stage_path, $url);
 
       $admin_bar->add_menu([
         'id'     => "stage_$stage",
