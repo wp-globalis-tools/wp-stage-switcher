@@ -64,16 +64,16 @@ class StageSwitcher {
         continue;
       }
 
-      $stage_url = parse_url($url);
+      $stage_url  = parse_url($url);
       $stage_path = isset($stage_url['path']) ? $stage_url['path'] : '';
+      $request    = str_replace($current_stage_path, '', $_SERVER['REQUEST_URI']);
 
       if (is_multisite() && defined('SUBDOMAIN_INSTALL') && SUBDOMAIN_INSTALL && !is_main_site()) {
-        $url = $this->multisite_url($url) . $_SERVER['REQUEST_URI'];
+        $url = $this->multisite_url($url) . $request;
       } else {
-        $url .= $_SERVER['REQUEST_URI'];
+        $request = str_replace($current_stage_path, '', $_SERVER['REQUEST_URI']);
+        $url .= $request;
       }
-
-      $url = str_replace($current_stage_path, $stage_path, $url);
 
       $admin_bar->add_menu([
         'id'     => "stage_$stage",
