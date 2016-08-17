@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name:  Stage Switcher
-Plugin URI:   https://roots.io/plugins/stage-switcher/
-Description:  A WordPress plugin that allows you to switch between different environments from the admin bar.
+Plugin URI:   https://github.com/wp-globalis-tools/wpg-stage-switcher
+Description:  A WordPress plugin that allows you to switch between different stages from the admin bar.
 Version:      2.0.0
 Author:       Roots
 Author URI:   https://roots.io/
@@ -21,20 +21,20 @@ if (file_exists($composer = __DIR__ . '/vendor/autoload.php')) {
 }
 
 /**
- * Add stage/environment switcher to admin bar
- * Inspired by http://37signals.com/svn/posts/3535-beyond-the-default-rails-environments
+ * Add stage/stage switcher to admin bar
+ * Inspired by http://37signals.com/svn/posts/3535-beyond-the-default-rails-stages
  *
- * ENVIRONMENTS constant must be a serialized array of 'environment' => 'url' elements:
+ * STAGES constant must be a serialized array of 'stage' => 'url' elements:
  *
- *   $envs = [
+ *   $stages = [
  *    'development' => 'http://example.dev',
  *    'staging'     => 'http://example-staging.com',
  *    'production'  => 'http://example.com'
  *   ];
  *
- *   define('ENVIRONMENTS', serialize($envs));
+ *   define('STAGES', serialize($stages));
  *
- * WP_ENV must be defined as the current environment
+ * WP_STAGE must be defined as the current stage
  */
 class StageSwitcher {
   public function __construct() {
@@ -43,17 +43,17 @@ class StageSwitcher {
   }
 
   public function admin_bar_stage_switcher($admin_bar) {
-    if (!defined('ENVIRONMENTS') && !defined('WP_ENV') && !apply_filters('bedrock/stage_switcher_visibility', is_super_admin())) {
+    if (!defined('STAGES') && !defined('WP_STAGE') && !apply_filters('bedrock/stage_switcher_visibility', is_super_admin())) {
       return;
     }
 
-    $stages = unserialize(ENVIRONMENTS);
-    $current_stage = WP_ENV;
-    $current_stage_url = parse_url($stages[WP_ENV]);
+    $stages = unserialize(STAGES);
+    $current_stage = WP_STAGE;
+    $current_stage_url = parse_url($stages[WP_STAGE]);
     $current_stage_path = isset($current_stage_url['path']) ? $current_stage_url['path'] : '';
 
     $admin_bar->add_menu([
-      'id'     => 'environment',
+      'id'     => 'stage',
       'parent' => 'top-secondary',
       'title'  => ucwords($current_stage),
       'href'   => '#'
@@ -77,7 +77,7 @@ class StageSwitcher {
 
       $admin_bar->add_menu([
         'id'     => "stage_$stage",
-        'parent' => 'environment',
+        'parent' => 'stage',
         'title'  => ucwords($stage),
         'href'   => $url
       ]);
@@ -86,7 +86,7 @@ class StageSwitcher {
 
   public function admin_css() { ?>
     <style>
-      #wp-admin-bar-environment > a:before {
+      #wp-admin-bar-stage > a:before {
         content: "\f177";
         top: 2px;
       }
